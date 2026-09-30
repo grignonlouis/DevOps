@@ -1,0 +1,23 @@
+name: Informations utilisateur
+
+on:
+  push:
+
+jobs:
+  nom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Afficher le nom
+        run: echo "Nom : ${{ vars.NOM }}"
+
+  prenom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Afficher le prénom
+        run: echo "Prénom : ${{ vars.PRENOM }}"
+
+  email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Afficher l'email
+        run: echo "Email : ${{ vars.EMAIL }}"
