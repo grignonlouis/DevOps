@@ -1,0 +1,63 @@
+Niveau 1 — consonne finale simple.
+밥 bap
+먹 meok
+옷 ot
+낮 nat
+국 guk
+꽃 kkot
+집 jip
+밖 bakk
+----------------------------------------------
+Niveau 2 — consonne finale + consonne suivante
+먹다 meoktta
+학교 hakkyo
+잡다 japtta
+듣다 deuttta
+있다 ittta
+없다 eoptta
+국밥 gukppap
+식당 sikttang
+----------------------------------------------
+Niveau 3 — liaison avec ㅇ
+먹어    meogeo
+밥을    babeul
+집에    jibe
+한국어 hangugeo
+옷이    osi
+꽃이    kkochi
+----------------------------------------------
+Niveau 4 — assimilation avec ㄴ / ㅁ
+먹는 meongneun (ㄱ+ㄴ → ㅇ+ㄴ)
+국물 gungmul   (ㄱ+ㅁ → ㅇ+ㅁ)
+밥만 bamman    (ㅂ+ㅁ → ㅁ+ㅁ)
+없는 eomneun   (ㅂ+ㄴ → ㅁ+ㄴ)
+듣는 deunneun  (ㄷ+ㄴ → ㄴ+ㄴ)
+앞문 ammun     (ㅂ+ㅁ → ㅁ+ㅁ)
+----------------------------------------------
+Niveau 5 — ㄴ / ㄹ (ㄴ + ㄹ → ㄹㄹ)
+신라 silla 
+설날 seollal
+연락 yeollak
+난로 nallo
+----------------------------------------------
+Niveau 6 — ㅎ
+좋다 jo-ta  (ㅎ+ㄷ → ㅌ)
+좋고 jo-ko  (ㅎ+ㄱ → ㅋ)
+놓다 no-ta  (ㅎ+ㄷ → ㅌ)
+많다 man-ta (많 = ㄶ : le ㄴ reste, et ㅎ fait aspirer ㄷ → ㅌ)
+많고 man-ko (ㄶ+ㄱ → ㄴ+ㅋ)
+그렇다 geu-reo-ta (ㅎ+ㄷ → ㅌ)
+----------------------------------------------
+Niveau 7 — mélange de plusieurs règles
+한국말     hangungmal
+한국 사람 hanguk saram
+먹습니다  meoksseumnida (ㄱ+ㅅ → ㅆ)
+없습니다  eopsseumnida
+좋겠다     jokkeottta
+어떻게     eotteoke 
+몇 번       myeotppeon
+같이        gachi
+읽다        iktta
+읽고        ilkko 
+
+
