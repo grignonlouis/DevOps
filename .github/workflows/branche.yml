@@ -1,0 +1,13 @@
+name: Nom de la branche
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  branche:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Afficher la branche
+        run: echo "La pipeline tourne dans la branche ${{ github.ref_name }}"
