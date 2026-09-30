@@ -1,0 +1,70 @@
+name: Dev Val Prod
+
+on:
+  workflow_dispatch:
+
+jobs:
+  dev:
+    runs-on: ubuntu-latest
+
+    outputs:
+      resultat: ${{ steps.calcul.outputs.resultat }}
+      pair: ${{ steps.calcul.outputs.pair }}
+
+    steps:
+      - name: Division dans Dev
+        id: calcul
+        run: |
+          N=64
+          RESULTAT=$((N / 2))
+
+          echo "Résultat Dev : $RESULTAT"
+
+          echo "resultat=$RESULTAT" >> "$GITHUB_OUTPUT"
+
+          if (( RESULTAT % 2 == 0 )); then
+            echo "pair=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pair=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  val:
+    needs: dev
+    if: needs.dev.outputs.pair == 'true'
+
+    runs-on: ubuntu-latest
+
+    outputs:
+      resultat: ${{ steps.calcul.outputs.resultat }}
+      pair: ${{ steps.calcul.outputs.pair }}
+
+    steps:
+      - name: Division dans Val
+        id: calcul
+        run: |
+          RESULTAT=${{ needs.dev.outputs.resultat }}
+          RESULTAT=$((RESULTAT / 4))
+
+          echo "Résultat Val : $RESULTAT"
+
+          echo "resultat=$RESULTAT" >> "$GITHUB_OUTPUT"
+
+          if (( RESULTAT % 2 == 0 )); then
+            echo "pair=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "pair=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  prod:
+    needs: val
+    if: needs.val.outputs.pair == 'true'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Division dans Prod
+        run: |
+          RESULTAT=${{ needs.val.outputs.resultat }}
+          RESULTAT=$((RESULTAT / 8))
+
+          echo "Résultat Prod : $RESULTAT"
