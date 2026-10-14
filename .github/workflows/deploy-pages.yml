@@ -1,0 +1,59 @@
+
+name: Deploy Hello World to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'index.html'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Recuperer le depot
+        uses: actions/checkout@v4
+
+      - name: Verifier le fichier HTML
+        run: |
+          test -f index.html
+          echo "Le fichier index.html existe."
+
+      - name: Preparer le site
+        run: |
+          mkdir -p _site
+          cp index.html _site/index.html
+
+      - name: Configurer GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Publier les fichiers en artefact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: '_site'
+
+  deploy:
+    name: Deploy to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: build
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deployer sur GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
