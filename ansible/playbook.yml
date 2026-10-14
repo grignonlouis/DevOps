@@ -1,0 +1,51 @@
+- name: Deployer Hello World avec Ansible
+  hosts: web
+  become: true
+
+  tasks:
+    - name: Installer Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: false
+
+    - name: Copier la page Hello World
+      ansible.builtin.copy:
+        src: ../index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Configurer Nginx sur le port 8082
+      ansible.builtin.copy:
+        dest: /etc/nginx/sites-available/default
+        owner: root
+        group: root
+        mode: "0644"
+        content: |
+          server {
+              listen 8082 default_server;
+              listen [::]:8082 default_server;
+
+              root /var/www/html;
+              index index.html;
+
+              location / {
+                  try_files $uri $uri/ =404;
+              }
+          }
+      notify: Redemarrer Nginx
+
+    - name: Demarrer Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: true
+
+  handlers:
+    - name: Redemarrer Nginx
+      ansible.builtin.service:
+        name: nginx
+        state: restarted
+        
