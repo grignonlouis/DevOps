@@ -129,7 +129,7 @@ Le job de déploiement dépend de la réussite du job d'extraction grâce à `ne
 - [x] Transmettre le fichier HTML entre les jobs avec un artefact.
 - [x] Déployer le site sur GitHub Pages.
 - [x] Vérifier la réussite des jobs GitHub Actions.
-- [ ] Confirmer l'affichage public du site dans le navigateur.
+- [x] Confirmer l'affichage public du site dans le navigateur.
 
 ### Ressources
 
