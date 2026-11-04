@@ -5,14 +5,14 @@
   <img src="https://img.shields.io/badge/GitHub%20Actions-CI%2FCD-2088FF?style=for-the-badge&logo=githubactions" alt="GitHub Actions">
   <img src="https://img.shields.io/badge/Docker-Containers-2496ED?style=for-the-badge&logo=docker" alt="Docker">
   <img src="https://img.shields.io/badge/Ansible-Automation-EE0000?style=for-the-badge&logo=ansible" alt="Ansible">
-  <img src="https://img.shields.io/badge/Status-In%20progress-orange?style=for-the-badge" alt="In progress">
+  <img src="https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge" alt="Completed">
 </p>
 
 Ce dépôt regroupe mes travaux pratiques de **DevOps**, réalisés dans le cadre du cours sur le pipelining, l'intégration continue et le déploiement d'applications.
 
 L'objectif est de comprendre comment automatiser les différentes étapes du cycle de vie d'une application : gestion du code source, vérification de sa qualité, exécution de pipelines CI/CD, conteneurisation et configuration d'un serveur web.
 
-Le projet s'appuie sur une application web statique affichant **Hello World !**, déployée localement de deux manières différentes : avec Docker et avec Ansible.
+Le projet s'appuie sur une application web statique affichant **Hello World !**, utilisée pour expérimenter plusieurs méthodes de déploiement : Docker, Ansible et GitHub Pages.
 
 ---
 
@@ -20,7 +20,7 @@ Le projet s'appuie sur une application web statique affichant **Hello World !**,
 
 - [Objectifs du cours](#objectifs-du-cours)
 - [Exercices — Pipelining](#exercices--pipelining)
-- [Exercice avancé — GitHub Pages et CI/CD](#exercice-avancé--github-pages-et-cicd)
+- [Exercice avancé — Docker, GitHub Actions et GitHub Pages](#exercice-avancé--docker-github-actions-et-github-pages)
 - [Déploiement avec Docker](#déploiement-avec-docker)
 - [Automatisation avec Ansible](#automatisation-avec-ansible)
 - [Vérification des déploiements](#vérification-des-déploiements)
@@ -41,6 +41,7 @@ Le projet s'appuie sur une application web statique affichant **Hello World !**,
 - Vérifier la qualité du HTML avec HTMLHint.
 - Déployer une application web statique.
 - Construire une image Docker et exécuter un conteneur.
+- Publier une image sur Docker Hub.
 - Automatiser l'installation et la configuration d'un serveur avec Ansible.
 - Vérifier le fonctionnement d'un serveur web avec des requêtes HTTP.
 
@@ -52,21 +53,21 @@ Le projet s'appuie sur une application web statique affichant **Hello World !**,
 
 - [x] Créer un workflow qui affiche `Hello World`.
 
-Workflow : [`hello-world.yml`](.github/workflows/hello-world.yml)
+Workflow : `.github/workflows/hello-world.yml`
 
 ### 2. Informations utilisateur
 
 - [x] Créer trois jobs pour afficher le nom, le prénom et l'adresse e-mail.
 - [x] Utiliser les variables du dépôt GitHub plutôt que des valeurs codées en dur.
 
-Workflow : [`informations.yml`](.github/workflows/informations.yml)
+Workflow : `.github/workflows/informations.yml`
 
 ### 3. Exécution d'un script Python
 
 - [x] Exécuter un script Python affichant `Commit success!`.
 - [x] Déclencher automatiquement le workflow lors d'un push.
 
-Workflow : [`python.yml`](.github/workflows/python.yml)
+Workflow : `.github/workflows/python.yml`
 
 ### 4. Gestion des branches
 
@@ -74,7 +75,7 @@ Workflow : [`python.yml`](.github/workflows/python.yml)
 - [x] Manipuler les branches `Dev`, `Val` et `Prod`.
 - [x] Comprendre le rôle des branches dans le processus de développement.
 
-Workflow : [`branche.yml`](.github/workflows/branche.yml)
+Workflow : `.github/workflows/branche.yml`
 
 ### 5. Pipeline conditionnelle Dev → Val → Prod
 
@@ -83,40 +84,81 @@ Workflow : [`branche.yml`](.github/workflows/branche.yml)
 - [x] Transmettre le résultat à Prod si les conditions sont remplies.
 - [x] Interrompre la progression lorsque les conditions ne sont pas remplies.
 
-Workflow : [`dev-val-prod.yml`](.github/workflows/dev-val-prod.yml)
+Workflow : `.github/workflows/dev-val-prod.yml`
 
 ---
 
-## Exercice avancé — GitHub Pages et CI/CD
+## Exercice avancé — Docker, GitHub Actions et GitHub Pages
 
-**Objectif :** automatiser la vérification et le déploiement d'une application web statique affichant `Hello World !`.
+**Objectif :** automatiser la publication d'une application web statique en utilisant une image Docker publiée sur Docker Hub.
 
-### Fonctionnement du workflow
+Cet exercice met en œuvre une chaîne CI/CD dans laquelle le fichier HTML n'est plus nécessaire dans le dépôt GitHub : il est récupéré directement depuis l'image Docker.
 
-Le workflow `deploy-pages.yml` organise les étapes suivantes :
+### Fonctionnement du pipeline
 
-1. **Récupération du code** : checkout du dépôt GitHub.
-2. **Préparation de l'environnement** : configuration de Node.js pour utiliser les outils nécessaires.
-3. **Vérification du HTML** : exécution de HTMLHint sur `index.html`.
-4. **Préparation du site** : création d'un artefact contenant les fichiers à publier.
-5. **Déploiement** : publication sur GitHub Pages lorsque les conditions et les permissions le permettent.
+Le workflow `.github/workflows/docker-pages.yml` organise le processus en plusieurs jobs.
 
-Le job de déploiement dépend de la réussite du job de vérification grâce à `needs: lint`. Une pull request peut ainsi déclencher les contrôles sans lancer le déploiement.
+1. **Récupération de l'image Docker**
+   - Authentification auprès de Docker Hub.
+   - Récupération de l'image `compotescassis/docker-devops:latest`.
+
+2. **Extraction du fichier HTML**
+   - Création d'un conteneur temporaire à partir de l'image.
+   - Extraction de `/usr/share/nginx/html/index.html` avec `docker cp`.
+   - Suppression du conteneur temporaire.
+   - Publication du fichier extrait sous forme d'artefact GitHub Actions.
+
+3. **Déploiement sur GitHub Pages**
+   - Téléchargement de l'artefact contenant le site.
+   - Préparation de GitHub Pages.
+   - Publication du site à partir de l'artefact.
+
+Le job de déploiement dépend de la réussite du job d'extraction grâce à `needs`.
 
 ### Travaux réalisés
 
-- [x] Créer la page HTML `index.html`.
-- [x] Configurer un workflow GitHub Actions.
-- [x] Ajouter une vérification automatique du HTML avec HTMLHint.
-- [x] Configurer les étapes de préparation et de publication du site.
-- [x] Identifier une restriction de publication liée à la configuration du dépôt privé et au forfait GitHub utilisé.
-- [ ] Confirmer que le site est effectivement accessible à l'adresse publique.
+- [x] Créer une image Docker à partir du Dockerfile.
+- [x] Créer un compte Docker Hub.
+- [x] Créer le dépôt Docker Hub `docker-devops`.
+- [x] Configurer les secrets GitHub `DOCKER_USERNAME` et `DOCKER_TOKEN`.
+- [x] Publier l'image `compotescassis/docker-devops:latest` sur Docker Hub.
+- [x] Supprimer `index.html` du dépôt GitHub.
+- [x] Récupérer l'image Docker depuis GitHub Actions.
+- [x] Créer un conteneur temporaire.
+- [x] Extraire le fichier HTML du conteneur.
+- [x] Transmettre le fichier HTML entre les jobs avec un artefact.
+- [x] Déployer le site sur GitHub Pages.
+- [x] Vérifier la réussite des jobs GitHub Actions.
+- [ ] Confirmer l'affichage public du site dans le navigateur.
 
-**Application :** [Consulter le site Hello World](https://grignonlouis.github.io/DevOps/)
+### Ressources
 
-Workflow : [`deploy-pages.yml`](.github/workflows/deploy-pages.yml)
+**Image Docker Hub :**  
+https://hub.docker.com/r/compotescassis/docker-devops
 
-> **Remarque :** la configuration du workflow ne garantit pas à elle seule la publication du site. L'accès à GitHub Pages, les permissions du workflow et la configuration du dépôt doivent également être vérifiés.
+**Site GitHub Pages :**  
+https://grignonlouis.github.io/DevOps/
+
+**Workflow :** `.github/workflows/docker-pages.yml`
+
+### Sécurité
+
+Les identifiants Docker Hub sont stockés dans les secrets du dépôt GitHub :
+
+- `DOCKER_USERNAME` : nom d'utilisateur Docker Hub.
+- `DOCKER_TOKEN` : jeton d'accès Docker Hub.
+
+Ces informations ne sont pas écrites directement dans le fichier YAML du workflow.
+
+### Principe technique
+
+Le fichier HTML est intégré dans l'image Docker lors de sa construction, à l'emplacement :
+
+`/usr/share/nginx/html/index.html`
+
+Après publication de l'image sur Docker Hub, le workflow peut récupérer ce fichier sans avoir besoin de le conserver dans le dépôt GitHub.
+
+Cette approche permet de séparer le stockage de l'application (image Docker) du processus de déploiement (GitHub Actions).
 
 ---
 
@@ -126,7 +168,7 @@ Workflow : [`deploy-pages.yml`](.github/workflows/deploy-pages.yml)
 
 ### Principe
 
-Le fichier `Dockerfile` définit la construction de l'image `hello-world-tp` à partir de Nginx sur Alpine Linux.
+Le fichier `Dockerfile` définit la construction de l'image à partir de Nginx sur Alpine Linux.
 
 Il copie le fichier `index.html` dans le répertoire web de Nginx et configure ses permissions afin que le serveur puisse lire le fichier.
 
@@ -142,6 +184,7 @@ Le conteneur utilise le port 80 en interne, publié sur le port 8081 de la machi
 - [x] Diagnostiquer et corriger une erreur HTTP 403 liée aux permissions.
 - [x] Consulter les conteneurs et les journaux Docker.
 - [x] Ajouter un fichier `.dockerignore`.
+- [x] Publier une image sur Docker Hub.
 
 ### Commandes utilisées
 
@@ -175,7 +218,18 @@ Tester le site :
 curl -I http://localhost:8081
 ```
 
-**URL locale :** [http://localhost:8081](http://localhost:8081)
+Publier l'image sur Docker Hub :
+
+```bash
+docker tag hello-world-tp compotescassis/docker-devops:latest
+docker push compotescassis/docker-devops:latest
+```
+
+**URL locale :** http://localhost:8081
+
+**Dépôt Docker Hub :** https://hub.docker.com/r/compotescassis/docker-devops
+
+**Remarque :** le fichier `index.html` a ensuite été supprimé du dépôt GitHub conformément aux consignes de l'exercice avancé. L'image déjà publiée sur Docker Hub conserve sa propre copie du fichier HTML. Une nouvelle construction de l'image nécessite donc de rendre à nouveau le fichier source disponible dans le contexte de build.
 
 ---
 
@@ -219,17 +273,17 @@ Exécuter le playbook :
 ansible-playbook -i ansible/inventory.ini ansible/playbook.yml --ask-become-pass
 ```
 
-**URL locale :** [http://localhost:8082](http://localhost:8082)
+**URL locale :** http://localhost:8082
 
-> **Remarque :** le playbook intervient sur la configuration Nginx du système hôte. Sur un serveur déjà utilisé, il faut vérifier la configuration existante avant de remplacer des fichiers ou des sites par défaut.
+> Remarque : le playbook intervient sur la configuration Nginx du système hôte. Sur un serveur déjà utilisé, il faut vérifier la configuration existante avant de remplacer des fichiers ou des sites par défaut.
 
 ---
 
 ## Vérification des déploiements
 
-Les deux méthodes de déploiement utilisent le même fichier `index.html`, mais exécutent deux instances distinctes de Nginx.
+Les méthodes de déploiement utilisent des instances Nginx distinctes.
 
-| Élément | Déploiement Docker | Déploiement Ansible |
+| Élément | Docker | Ansible |
 |---|---|---|
 | Serveur web | Nginx dans un conteneur | Nginx installé sur Ubuntu |
 | Port hôte | `8081` | `8082` |
@@ -254,9 +308,9 @@ curl -I http://localhost:8082
 
 Les deux commandes ont renvoyé **HTTP 200 OK**, confirmant que les deux serveurs web répondent correctement aux requêtes HTTP locales.
 
-Les en-têtes HTTP ont également permis de constater que les deux instances utilisent des versions de Nginx différentes.
+Ces tests valident les déploiements locaux, mais ne prouvent pas à eux seuls que GitHub Pages est accessible publiquement.
 
-Ces tests valident les déploiements locaux, mais ne prouvent pas que GitHub Pages est accessible publiquement.
+Pour GitHub Pages, la vérification consiste à consulter l'URL publique du site et à confirmer que le contenu HTML attendu s'affiche.
 
 ---
 
@@ -266,9 +320,9 @@ Le TP aborde également les principes de séparation des environnements.
 
 | Environnement | Rôle |
 |---|---|
-| **DEV** — Développement | Écrire le code, ajouter des fonctionnalités et corriger les erreurs. |
-| **VAL** — Validation | Vérifier le fonctionnement et la conformité de l'application avant sa mise en production. |
-| **PROD** — Production | Mettre l'application à disposition des utilisateurs dans un environnement stable et contrôlé. |
+| **DEV — Développement** | Écrire le code, ajouter des fonctionnalités et corriger les erreurs. |
+| **VAL — Validation** | Vérifier le fonctionnement et la conformité de l'application avant sa mise en production. |
+| **PROD — Production** | Mettre l'application à disposition des utilisateurs dans un environnement stable et contrôlé. |
 
 La progression DEV → VAL → PROD permet de limiter les risques en validant les modifications avant leur mise à disposition des utilisateurs.
 
@@ -289,17 +343,16 @@ DevOps/
 │       ├── python.yml
 │       ├── branche.yml
 │       ├── dev-val-prod.yml
-│       └── deploy-pages.yml
+│       └── docker-pages.yml
 ├── ansible/
 │   ├── inventory.ini
 │   └── playbook.yml
-├── index.html
 ├── Dockerfile
 ├── .dockerignore
 └── README.md
 ```
 
-Cette arborescence présente les principaux fichiers du projet. Elle peut évoluer en fonction des exercices ajoutés au dépôt.
+Cette arborescence présente les principaux fichiers du projet. Le fichier `index.html` n'est plus conservé dans le dépôt : il est récupéré depuis l'image Docker publiée sur Docker Hub au moment du déploiement.
 
 ---
 
@@ -308,14 +361,15 @@ Cette arborescence présente les principaux fichiers du projet. Elle peut évolu
 | Technologie | Utilisation |
 |---|---|
 | Git | Gestion des versions et historique du code |
-| GitHub | Hébergement du dépôt distant et collaboration |
-| GitHub Actions | Automatisation des workflows |
+| GitHub | Hébergement du dépôt distant |
+| GitHub Actions | Automatisation des workflows CI/CD |
 | YAML | Définition des workflows et playbooks |
 | Python | Exécution de scripts automatisés |
 | HTML / CSS | Création de la page web statique |
 | HTMLHint | Vérification de la qualité du HTML |
-| GitHub Pages | Publication d'un site statique |
+| GitHub Pages | Publication du site statique |
 | Docker | Construction d'images et exécution de conteneurs |
+| Docker Hub | Hébergement et distribution de l'image Docker |
 | Nginx | Serveur web HTTP |
 | Ansible | Automatisation de l'installation et de la configuration |
 | Ubuntu | Système hôte des déploiements locaux |
@@ -334,6 +388,10 @@ J'ai appris à :
 - organiser des workflows comportant plusieurs jobs et des conditions ;
 - vérifier la qualité du HTML avant un déploiement ;
 - construire une image Docker et exécuter un conteneur Nginx ;
+- publier une image Docker sur Docker Hub ;
+- extraire un fichier depuis un conteneur avec `docker cp` ;
+- transmettre des fichiers entre plusieurs jobs avec les artefacts GitHub Actions ;
+- automatiser le déploiement d'un site sur GitHub Pages ;
 - diagnostiquer et corriger une erreur HTTP 403 liée aux permissions ;
 - automatiser l'installation et la configuration de Nginx avec Ansible ;
 - vérifier le fonctionnement des serveurs avec `curl` et les codes d'état HTTP ;
